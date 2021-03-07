@@ -1,0 +1,36 @@
+{
+  "server":{
+    "hostname":"0.0.0.0",
+    "port":8080
+  },
+  "database":{
+    "mongodb_host":"localhost",
+    "mongodb_port":27017,
+    "mongodb_database":"mhdb"
+  },
+  "admin": {
+    "sessionTimeout":60
+  },
+  "http":{
+    "apiPrefix":"/api/v1",
+    "pagePrefix":"/p",
+    "adminPrefix":"/admin",
+    "staticContent":"./mhstatic/",
+    "notFoundPage":"notfound.html",
+    "poweredBy":"Sunshine and Puppies",
+    "pagelimit":1500,
+    "limitPerIP":10
+  },
+  "keygen":{
+    "privateKeySize":32,
+    "publicURLHashSize":6
+  },
+  "ipsecurity":{
+    "enabled":true
+  },
+  "logging":{
+    "infologfile":"info.log",
+    "accesslogfile":"access.log",
+    "errorlogfile":"error.log"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "microhost",
+  "version": "1.0.0",
+  "description": "microhost servlet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Steven Day",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "dom-parser": "^0.1.6",
+    "express": "^4.17.1",
+    "ip": "^1.1.5",
+    "mongodb": "^2.2.33"
+  }
+}
