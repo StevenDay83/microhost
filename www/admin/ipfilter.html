@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>mhst - ip filter lists</title>
+    <link rel="icon" href="/img/HeavyScout.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href = "/css/site.css"  rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script src="/scripts/settings.js"></script>
+    <script src="/scripts/widgets.js"></script>
+    <script src="/scripts/admin.js"></script>
+    <script src="/scripts/adminpageaction.js"></script>
+    <script>
+      var Global_SafeList = {};
+      var Global_BlockList = {};
+    </script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="/admin/dashboard.html">mhst admin</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#adminnavlist" aria-controls="adminnavlist" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div id="adminnavlist" class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <!-- <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li> -->
+          <li class="nav-item active">
+            <a class="nav-link active" href="/admin/ipfilter.html">ip filter lists</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)">action</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)">sites</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)" onClick="logOutPageAction()">logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div id="statusAlert" class="alert alert-light">
+    </div>
+    <div class="container">
+      <div class="my-0">
+        <label class="p">Block List</label>
+        <textarea class="form-control" rows="8" style="width:40%;"  id="blockListText"></textarea>
+      </div>
+      <div class="my-4">
+        <label class="p">Safe List</label>
+        <textarea class="form-control" rows="8" style="width:40%;"  id="whiteListText"></textarea>
+      </div>
+      <div>
+        <button class="btn btn-sm btn-success my-2 mx-auto" id="updateList" onClick="applyIPLists()" type="button">Update</button>
+      </div>
+    </div>
+
+    <script>
+      var blockListTextArea = new ipListTextArea("blockListText");
+      var safeListTextArea = new ipListTextArea("whiteListText");
+      var statusAlert = new statusBanner("statusAlert", '');
+
+      validateSession(sessionCookie.sessionid, function(isAuthenticated, err){
+        if (!err){
+          if (!isAuthenticated){
+            console.log("Redirecting");
+            window.location.href = '/admin';
+          } else {
+            initPage();
+          }
+
+        } else {
+          console.log("Redirecting");
+          console.log(err);
+          window.location.href = '/admin';
+        }
+      });
+
+      function initPage(){
+        loadIPLists();
+      }
+
+      function loadIPLists(){
+        getList(sessionCookie.sessionid, 0, function(blockListObj, err){
+          if (!err){
+            if (blockListObj != undefined){
+              Global_BlockList = blockListObj;
+              blockListTextArea.setValue(blockListObj);
+            }
+          } else {
+            console.log(err);
+          }
+
+          blockListTextArea.renderList();
+        });
+
+        getList(sessionCookie.sessionid, 1, function(safeListObj, err){
+          if (!err){
+            if (safeListObj != undefined){
+              Global_SafeList = safeListObj;
+              safeListTextArea.setValue(safeListObj);
+            }
+          } else {
+            console.log(err);
+          }
+
+          safeListTextArea.renderList();
+        });
+      }
+
+      function applyIPLists(){
+        if (validateLists()){
+          var blockListChanges = syncLists(0);
+          var safeListChanges = syncLists(1);
+
+          var addListArrayB = [];
+          var updateListArrayB = [];
+          var deleteListArrayB = [];
+
+          var addListArrayS = [];
+          var updateListArrayS = [];
+          var deleteListArrayS = [];
+
+          for (let i = 0; i < safeListChanges.length; i++){
+            let thisItem = safeListChanges[i];
+
+            if (thisItem.add != undefined){
+              addListArrayS.push(thisItem.add);
+            } else if (thisItem.update != undefined){
+              updateListArrayS.push(thisItem.update);
+            } else if (thisItem.remove != undefined){
+              deleteListArrayS.push(thisItem.remove);
+            }
+          }
+
+
+
+          for (let i = 0; i < blockListChanges.length; i++){
+            let thisItem = blockListChanges[i];
+
+            if (thisItem.add != undefined){
+              addListArrayB.push(thisItem.add);
+            } else if (thisItem.update != undefined){
+              updateListArrayB.push(thisItem.update);
+            } else if (thisItem.remove != undefined){
+              deleteListArrayB.push(thisItem.remove);
+            }
+          }
+
+
+          // Block List First
+
+          for (let i = 0; i < deleteListArrayB.length; i++){
+            let thisDeleteItem = deleteListArrayB[i];
+
+            modifyIPToList(sessionCookie.sessionid, thisDeleteItem, 0, "remove", function(err){
+              if (err){
+                statusAlert.setActionAlert(err.message, "error");
+              }
+            });
+          }
+
+          for (let i = 0; i < updateListArrayB.length; i++){
+            let thisUpdateItem = updateListArrayB[i];
+
+            modifyIPToList(sessionCookie.sessionid, thisUpdateItem, 0, "update", function(err){
+              if (err){
+                statusAlert.setActionAlert(err.message, "error");
+              }
+            });
+          }
+
+          for (let i = 0; i < addListArrayB.length; i++){
+            let thisAddItem = addListArrayB[i];
+
+            modifyIPToList(sessionCookie.sessionid, thisAddItem, 0, "add", function(err){
+              if (err){
+                statusAlert.setActionAlert(err.message, "error");
+              }
+            });
+          }
+
+          // Safe List
+
+          for (let i = 0; i < deleteListArrayS.length; i++){
+            let thisDeleteItem = deleteListArrayS[i];
+
+            modifyIPToList(sessionCookie.sessionid, thisDeleteItem, 1, "remove", function(err){
+              if (err){
+                statusAlert.setActionAlert(err.message, "error");
+              }
+            });
+          }
+
+          for (let i = 0; i < updateListArrayS.length; i++){
+            let thisUpdateItem = updateListArrayS[i];
+
+            modifyIPToList(sessionCookie.sessionid, thisUpdateItem, 1, "update", function(err){
+              if (err){
+                statusAlert.setActionAlert(err.message, "error");
+              }
+            });
+          }
+
+          for (let i = 0; i < addListArrayS.length; i++){
+            let thisAddItem = addListArrayS[i];
+
+            modifyIPToList(sessionCookie.sessionid, thisAddItem, 1, "add", function(err){
+              if (err){
+                statusAlert.setActionAlert(err.message, "error");
+              }
+            });
+          }
+
+          setTimeout(function() {
+            statusAlert.setActionAlert("IP Lists updated", "success");
+            loadIPLists();
+          }, 1000);
+
+        }
+      }
+
+      function validateLists(){
+        var isValid = true;
+        var liveBlockListArray = blockListTextArea.convertTextToObj(blockListTextArea.getText());
+        var liveSafeListArray = safeListTextArea.convertTextToObj(safeListTextArea.getText());
+
+        for (let i = 0; i < liveBlockListArray.length; i++){
+          var thisBlockObj = liveBlockListArray[i];
+
+          for (let j = 0; j < liveSafeListArray.length; j++){
+            var thisSafeObj = liveSafeListArray[j];
+
+            if (thisBlockObj.ipAddr == thisSafeObj.ipAddr){
+              statusAlert.setActionAlert("Duplicate IP Entry " + thisBlockObj.ipAddr + " in both lists", "error");
+              isValid = false;
+              break;
+            }
+          }
+        }
+
+        return isValid;
+      }
+
+      function syncLists(listType) {
+        var addMoveChangeList = [];
+        var listFromWidget;
+        var GlobalList;
+        // var liveBlockListArray = blockListTextArea.convertTextToObj(blockListTextArea.getText());
+        // var liveSafeListArray = safeListTextArea.convertTextToObj(safeListTextArea.getText());
+
+
+        if (listType == 0){
+          listFromWidget = blockListTextArea.convertTextToObj(blockListTextArea.getText());
+          GlobalList = Global_BlockList;
+        } else {
+          listFromWidget = safeListTextArea.convertTextToObj(safeListTextArea.getText());
+          GlobalList = Global_SafeList;
+        }
+
+        for (let i = 0; i < listFromWidget.length; i++){
+          var thisIPFilterObj = listFromWidget[i];
+
+          var isMatch = false;
+
+          for (let j = 0; j < GlobalList.length; j++){
+            var thisIPGlobalObj = GlobalList[j];
+
+            if (thisIPFilterObj.ipAddr == thisIPGlobalObj.ipAddr){
+              isMatch = true;
+              if (thisIPFilterObj.cidr != thisIPGlobalObj.cidr){
+                let updateObj = {};
+                updateObj["update"] = thisIPFilterObj;
+                addMoveChangeList.push(updateObj);
+                break;
+              }
+            }
+          }
+          if (!isMatch){
+            var addObj = {};
+            addObj["add"] = thisIPFilterObj;
+            addMoveChangeList.push(addObj);
+          }
+        }
+
+        for (let i = 0; i < GlobalList.length; i++){
+          var thisIPGlobalObj = GlobalList[i];
+
+          var isMatch = false;
+
+          for (let j = 0; j < listFromWidget.length; j++){
+            var thisIPFilterObj = listFromWidget[j];
+
+            if (thisIPFilterObj.ipAddr == thisIPGlobalObj.ipAddr){
+              isMatch = true;
+              break;
+            }
+          }
+
+          if (!isMatch){
+            var delObj = {};
+            delObj["remove"] = thisIPGlobalObj;
+            addMoveChangeList.push(delObj)
+          }
+        }
+
+        console.log(addMoveChangeList);
+        return addMoveChangeList;
+      }
+    </script>
+
+  </body>
+</html>

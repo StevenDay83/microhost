@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>mhst admin console</title>
+    <link rel="icon" href="/img/HeavyScout.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href = "/css/site.css"  rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script src="/scripts/settings.js"></script>
+    <script src="/scripts/widgets.js"></script>
+    <script src="/scripts/admin.js"></script>
+    <script src="/scripts/adminpageaction.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <a class="navbar-brand" href="/admin/dashboard.html">mhst admin</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#adminnavlist" aria-controls="adminnavlist" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div id="adminnavlist" class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <!-- <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li> -->
+          <li class="nav-item">
+            <a class="nav-link" href="/admin/ipfilter.html">ip filter lists</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)">action</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)">sites</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)" onClick="logOutPageAction()">logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div id="activePagesWidget" class="mx-2 my-2"></div>
+      <div id="createdPagesPastDaysWidget" class="mx-2 my-2"></div>
+      <div id="individualIPAddrWidget" class="mx-2 my-2"></div>
+    </div>
+
+
+    <script>
+      // var sessionCookie = getSessionIDCookie(document.cookie);
+      var activePagesWidget = new numberDisplayWidget("activePagesWidget", "0", '', ' current sites');
+      var createdPagesPastDaysWidget = new numberDisplayWidget("createdPagesPastDaysWidget", "0", 'Sites created in past day: ', '');
+      var individualIPAddrWidget = new numberDisplayWidget("individualIPAddrWidget", "#", '', ' individual IP addresses');
+
+      validateSession(sessionCookie.sessionid, function(isAuthenticated, err){
+        if (!err){
+          if (!isAuthenticated){
+            console.log("Redirecting");
+            window.location.href = '/admin';
+          } else {
+            initPage();
+          }
+
+        } else {
+          console.log("Redirecting");
+          console.log(err);
+          window.location.href = '/admin';
+        }
+      });
+
+      function initPage(){
+        createdPagesPastDaysWidget.setHeaderValue("h4");
+        individualIPAddrWidget.setHeaderValue("h3");
+
+        activePagesWidget.renderWidget();
+        createdPagesPastDaysWidget.renderWidget();
+        individualIPAddrWidget.renderWidget();
+
+        loadWidgetData();
+
+      }
+
+      function loadWidgetData(){
+        getAdminStatistics(sessionCookie.sessionid, function(statsJSON, err){
+          if (!err){
+            activePagesWidget.setValue(statsJSON.activePages);
+            createdPagesPastDaysWidget.setValue(statsJSON.createdPagesPastDay);
+            individualIPAddrWidget.setValue(statsJSON.individualIPAddresses);
+          } else {
+            console.log(err);
+          }
+        });
+      }
+
+    </script>
+  </body>
+</html>

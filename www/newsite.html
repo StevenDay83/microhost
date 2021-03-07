@@ -1,0 +1,184 @@
+<html>
+<head>
+  <title>mhst: The Internet's bulletin board</title>
+  <!-- <link href="/css/main.css" rel="stylesheet"> -->
+  <link rel="icon" href="/img/HeavyScout.png">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <link href = "/css/site.css"  rel="stylesheet">
+  <script src= "/scripts/settings.js"></script>
+  <script src= "/scripts/newsite.js"></script>
+  <script src= "/scripts/widgets.js"></script>
+  <script>
+    var Global_publicURLSuffix;
+    var Global_privateKey;
+  </script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="/">mhst</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainnavlist" aria-controls="mainnavlist" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="mainnavlist" class="collapse navbar-collapse">
+      <ul class="navbar-nav mr-auto">
+        <!-- <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li> -->
+        <li class="nav-item active">
+          <a class="nav-link" href="newsite.html">new site</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="sitemanage.html">manage site</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="resources.html">resources</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="about.html">about</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <main role="main" class="container">
+    <div id="creationbanner" class="alert alert-light row justify-content-center">
+
+    </div>
+    <div id="inputFormArea" class="new-site">
+      <h1>Create your micro site</h1>
+      <p class="lead">Fill out what type of site and expiration you want</p>
+
+      <div id="criteriaform">
+        <div class="container row justify-content-center my-2">
+        <label for="sitetype" class="my-1 mx-2">site type: </label>
+        <select onClick="" id="sitetype">
+            <option value="text/html" selected>html website</option>
+            <option value="text/plain">plain ol' text</option>
+            <option value="appilication/json">json document</option>
+        </select>
+        </div>
+        <div class="container row justify-content-center my-2">
+        <label for="siteexpiration" class="my-1 mx-2">how long?: </label>
+        <select onClick="" id="siteexpiration">
+            <option value="86400" selected>1 Day</option>
+            <option value="259200">3 Days</option>
+            <option value="432000">5 Days</option>
+            <option value="604800">1 Week</option>
+        </select>
+        </div>
+        <div>
+          <button class="btn btn-sm btn-success my-2 mx-auto" id="submitButton" onClick="processNewSite()" type="button">Create Request</button>
+        </div>
+      </div>
+    </div>
+    <div id="keys" class="contaner new-site mhst-invisible">
+      <h5>public site</h5>
+      <div id="publickeydisplay" class="container row justify-content-center">
+        <a class="mh-link" href = "#"><label class="my-1 mx-0"><p class="site-prefix">http://mhst.site/p/</h1></label>
+        <label class="my-1 mx-0"><h1 class="public-key-suffix">1dghy5</h1></label></a>
+      </div>
+      <div id="privatekeydisplay" class="container row justify-content-center">
+        <!-- <h1>Private Key: </h1>
+        <h1>12345</h1> -->
+      </div>
+      <div>
+        <p class="container row justify-content-center">Please put the above information in a safe place for later</p>
+      </div>
+      <div class="container row justify-content-center">
+        <button class="btn btn-lg btn-success my-2 mx-auto" id="submitButton" onClick="goToManagedSite()" type="button">manage my site</button>
+      </div>
+    </div>
+
+  </main><!-- /.container -->
+  <script>
+
+  document.getElementById("keys").style.display = "none";
+
+  function createURLKeyDisplay(publicKey, privateKey){
+    var outputDiv = document.getElementById("keys");
+    var inputArea = document.getElementById("inputFormArea");
+    var publicKeyDiv = document.getElementById("publickeydisplay");
+    var privateKeyDiv = document.getElementById("privatekeydisplay");
+
+    // var newLink = document.createElement("a");
+    var publicLabel = document.createElement("label");
+    var publicURL = document.createElement("h5");
+    var siteURL = microhostSettingsJSON.sitePrefix + microhostSettingsJSON.pagePrefix + '/' + publicKey;
+
+    var privateKeyLabel = document.createElement("h5");
+
+    // newLink.setAttribute("class", "mh-link");
+    publicLabel.setAttribute("class", "my-1 mx-0");
+    publicURL.setAttribute("class", "public-key-suffix");
+    privateKeyLabel.setAttribute("class", "container row justify-content-center");
+
+    // newLink.setAttribute("href", siteURL);
+    publicURL.innerText = siteURL;
+    publicLabel.innerHTML = publicURL.outerHTML;
+    publicKeyDiv.innerHTML = publicLabel.outerHTML;
+    // publicKeyDiv.innerHTML = newLink.outerHTML;
+
+    privateKeyLabel.innerText = "Private Key: " + privateKey;
+
+    privateKeyDiv.innerHTML = privateKeyLabel.outerHTML;
+
+    inputArea.style.display = "none";
+    outputDiv.style.display = "block";
+  }
+
+
+
+
+    function processNewSite(){
+      if (validateInput()){
+        var expirationTime = document.getElementById("siteexpiration").value;
+        var siteMimeType = document.getElementById("sitetype").value;
+
+        console.log(siteMimeType);
+
+        generateSite(expirationTime, siteMimeType, function(results, err){
+          if (!err){
+            console.log(results);
+            var publicKey = results["publicURLSuffix"];
+            var privateKey = results["privateKey"];
+
+            // var Global_publicURLSuffix;
+            // var Global_privateKey;
+
+            Global_publicURLSuffix = publicKey;
+            Global_privateKey = privateKey;
+
+            createURLKeyDisplay(publicKey, privateKey);
+
+          } else {
+            // @TODO: Handle IP Limit and IP Block
+            console.log(err.message);
+            creationBanner.setActionAlert(err.message, "error");
+          }
+        });
+
+      } else {
+        // @TODO: Error for inputs
+        creationBanner.setActionAlert(err.message, "Invalid Input");
+      }
+
+    }
+
+    function validateInput(){
+      var isValid = true;
+
+      return isValid;
+    }
+
+    function goToManagedSite(){
+      var managedSiteURL = "/sitemanage.html?publicurlkey=" + Global_publicURLSuffix + "&privatekey=" + Global_privateKey;
+      window.location.href = managedSiteURL;
+    }
+
+    var creationBanner = new statusBanner("creationbanner", '');
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+.bd-placeholder-img {
+  font-size: 1.125rem;
+  text-anchor: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@media (min-width: 768px) {
+  .bd-placeholder-img-lg {
+    font-size: 3.5rem;
+  }
+}
+
+body {
+  padding-top: 5rem;
+}
+.new-site {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.public-key-suffix {
+  color:green;
+}
+
+.site-prefix {
+  color:black;
+}
+
+.mh-link {
+    text-decoration: none;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+.mhst-visible {
+  display:block;
+}
+
+.mhst-invisible {
+  display:none;
+}
+
+.input-lg {
+  font-size: 24px
+}

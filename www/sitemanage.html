@@ -1,0 +1,287 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>mhst</title>
+  <link rel="icon" href="/img/HeavyScout.png">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <link href = "/css/site.css"  rel="stylesheet">
+  <script src= "/scripts/settings.js"></script>
+  <script src= "/scripts/managesite.js"></script>
+  <script src= "/scripts/widgets.js"></script>
+  <script>
+    var getParams = new URLSearchParams(window.location.search);
+    var Global_publicURLSuffix = getParams.get("publicurlkey");
+    var Global_privateKey = getParams.get("privatekey");
+    var Global_siteAttributes = {};
+  </script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="/">mhst</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainnavlist" aria-controls="mainnavlist" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="mainnavlist" class="collapse navbar-collapse">
+      <ul class="navbar-nav mr-auto">
+        <!-- <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li> -->
+        <li class="nav-item">
+          <a class="nav-link" href="newsite.html">new site</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="sitemanage.html">manage site</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="resources.html">resources</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="about.html">about</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <div id="siteLogin" class="mhst-invisible my-2">
+    <div id="statusLogin" class="alert alert-light row justify-content-center h5">
+    </div>
+    <div class="container row justify-content-center">
+      <h2>Enter site credentials below</h2>
+    </div>
+    <div class="row justify-content-center my-5">
+      <h1>http://mhst.site/p/</h1>
+      <input type="text" id="siteSuffix" class="mx-1 p" required autofocus>
+    </div>
+    <div class="row justify-content-center my-5">
+      <h1>private key</h1>
+    </div>
+    <div class="row justify-content-center my-5">
+      <input type="password" id="siteKey" class="col-lg-3 p text-center">
+    </div>
+    <div class="row justify-content-center my-5">
+      <button class="btn btn-md btn-block btn btn-success" style="width:20%" id="sitelogin" onClick="loginToSiteManagement()" type="button">Log In</button>
+    </div>
+  </div>
+  <!-- Start Site Console -->
+  <div id="siteConsole" class="mhst-invisible">
+    <div id="statusAlert" class="alert alert-light">
+
+    </div>
+    <div id="countdowntimer" class="p">
+      n/a
+    </div>
+    <textarea class="form-control" style="height:60%"  id="siteText"></textarea>
+    <div class="container row justify-content-left my-2">
+      <label for="sitetype" class="my-1 mx-2">site type: </label>
+      <select onChange="siteTypeChange()" id="sitetype">
+        <option value="text/html" selected>html website</option>
+        <option value="text/plain">plain text</option>
+        <option value="appilication/json">json document</option>
+      </select>
+    </div>
+    <div class="container row justify-content-left my-2">
+      <label for="siteexpiration" class="my-1 mx-2">expiration: </label>
+      <select onChange="expirationChange()" id="siteexpiration">
+        <option value="86400" selected>1 Day</option>
+        <option value="259200">3 Days</option>
+        <option value="432000">5 Days</option>
+        <option value="604800">1 Week</option>
+      </select>
+    </div>
+    <button class="btn btn-sm btn-success my-2 mx-auto" id="publishSite" onClick="publishToSite()" type="button">Publish to site</button>
+    <div class="btn btn-sm btn-success btn-file my-2 mx-auto">
+      <span>Upload from file</span>
+      <input type="file" onChange="loadLocalDataIntoTextArea(event)">
+    </div>
+  </div>
+  <script>
+  // @TODO enable tabbing in text area
+  var expirationTimer;
+    if (Global_publicURLSuffix != undefined && Global_privateKey != undefined){
+      validateKeyLogin(Global_publicURLSuffix, Global_privateKey, function(returnObj, err){
+        if (!err){
+          // Assume success
+          document.getElementById("siteConsole").style.display = "block";
+          document.getElementById("siteLogin").style.display = "none";
+          loadAttributes(Global_publicURLSuffix, Global_privateKey, function(attributesObj, err){
+            if (!err){
+              console.log(attributesObj);
+              Global_siteAttributes = attributesObj;
+              setSiteTypeElement();
+              setExpirationElement();
+              expirationTimer = new countdownTimer("countdowntimer", Global_siteAttributes.createdDate, Global_siteAttributes.expiration);
+              expirationTimer.startTimer();
+              // @TODO write to elements
+              loadPageData(Global_publicURLSuffix, Global_privateKey, function(pageDataObj, err){
+                if (!err){
+                  console.log(pageDataObj);
+
+                  if (pageDataObj["data"] != undefined){
+                    document.getElementById("siteText").value = pageDataObj["data"];
+                  }
+
+                  // sbanner.setActionAlert("Loaded page data for " + Global_publicURLSuffix, "success");
+
+                } else {
+                  // @TODO set some error traps here
+                  if (err.message == "Not Authorized"){
+                    sbanner.setActionAlert("Authorization failed: Please refresh", "error");
+                  } else {
+                    sbanner.setActionAlert(err.message, "error");
+                  }
+                }
+              });
+            } else {
+              // @TODO set some error traps here
+              console.log(err);
+
+              if (err.message == "Not Authorized"){
+                sbanner.setActionAlert("Authorization failed: Please refresh", "error");
+              } else {
+                sbanner.setActionAlert(err.message, "error");
+              }
+            }
+          });
+        } else {
+          // Some errors here
+          console.log(err.message);
+          document.getElementById("siteConsole").style.display = "none";
+          document.getElementById("siteLogin").style.display = "block";
+        }
+      });
+    } else {
+      document.getElementById("siteConsole").style.display = "none";
+      document.getElementById("siteLogin").style.display = "block";
+
+    }
+
+    function loadLocalDataIntoTextArea(event){
+      try {
+        var input = event.target;
+
+        var reader = new FileReader();
+        reader.onload = function(){
+          var text = reader.result;
+          var node = document.getElementById("siteText");
+          node.value = text;
+        };
+
+        reader.readAsText(input.files[0]);
+        sbanner.setActionAlert("Loaded file " + input.files[0].name, "success");
+      } catch (err){
+        console.log(err);
+        sbanner.setActionAlert("Error reading file " + input.files[0].name, "error");
+      }
+
+    }
+
+    function publishToSite(){
+      var textData = document.getElementById("siteText").value;
+      var textSize = textData.length / 1024;
+      // @TODO Validate 100KB limit
+
+      console.log(textSize);
+
+      if (textSize < 100){
+        updateAttributes(Global_publicURLSuffix, Global_privateKey, Global_siteAttributes.expiration, Global_siteAttributes.mimetype, function(resultsObj, err){
+          if (!err){
+            expirationTimer.stopTimer();
+            expirationTimer.updateTimerAttributes(Global_siteAttributes.createdDate ,Global_siteAttributes.expiration);
+            expirationTimer.startTimer();
+            if (textData != undefined && textData != ""){
+              updatePageData(Global_publicURLSuffix, Global_privateKey, textData, function(resultsDataObj, err){
+                if (!err){
+                  sbanner.setActionAlert("Site published to " + Global_publicURLSuffix, "success");
+                } else {
+                  // @TODO add error stuff here
+                  console.log(err);
+                  if (err.message == "upload failed"){
+                    sbanner.setActionAlert("Site publish failed", "error");
+                  } else {
+                    sbanner.setActionAlert("System error", "error");
+                  }
+                }
+              });
+            }
+          } else {
+            // @TODO add error stuff here
+            console.log(err);
+            if (err.message == "Not Authorized"){
+              sbanner.setActionAlert("Authorization failed: Please refresh", "error");
+            } else if (err.message == "Update Failed"){
+              sbanner.setActionAlert("Site attribute update error", "error");
+            }
+          }
+        });
+      } else {
+        sbanner.setActionAlert("Size limit 100KB exceeded. Currently at " + Math.floor(textSize) + "KB", "error");
+      }
+
+
+    }
+
+    function expirationChange(){
+      var expirationElement = document.getElementById("siteexpiration");
+
+      Global_siteAttributes["expiration"] = expirationElement.value;
+    }
+
+    function siteTypeChange(){
+      var siteTypeElement = document.getElementById("sitetype");
+
+      Global_siteAttributes["mimetype"] = siteTypeElement.value;
+    }
+
+    function setSiteTypeElement(){
+      var siteTypeElement = document.getElementById("sitetype");
+
+      siteTypeElement.value = Global_siteAttributes["mimetype"];
+    }
+
+    function setExpirationElement(){
+      var expirationElement = document.getElementById("siteexpiration");
+
+      expirationElement.value = Global_siteAttributes["expiration"]
+    }
+
+    function loginToSiteManagement(){
+      var publicURLKey = document.getElementById("siteSuffix");
+      var privateKey = document.getElementById("siteKey");
+
+      try {
+        if (publicURLKey != undefined && publicURLKey.value != ""){
+          if (privateKey != undefined && privateKey.value != ""){
+            validateKeyLogin(publicURLKey.value, privateKey.value, function(returnObj, err){
+              if (!err){
+                var urlString = "/sitemanage.html?publicurlkey=" + publicURLKey.value + "&privatekey=" + privateKey.value;
+                parent.location.href = urlString;
+                console.log(urlString);
+              } else {
+                lbanner.setActionAlert("Invalid keys", "error");
+              }
+            });
+          } else {
+            lbanner.setActionAlert("Please enter site private key", "error");
+          }
+        } else {
+          lbanner.setActionAlert("Please enter site url key", "error");
+        }
+      } catch (err){
+        console.log(err);
+        lbanner.setActionAlert("System error", "error");
+      }
+
+    }
+
+    var sbanner = new statusBanner("statusAlert", '<a target="_blank" href="' + microhostSettingsJSON.sitePrefix + microhostSettingsJSON.pagePrefix +
+    '/' + Global_publicURLSuffix + '">' + microhostSettingsJSON.sitePrefix + microhostSettingsJSON.pagePrefix + '/' + Global_publicURLSuffix + '</a>');
+    var lbanner = new statusBanner("statusLogin", '');
+    // var expirationTimer = new countdownTimer("countdowntimer", )
+
+  </script>
+</body>
+</html>

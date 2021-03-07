@@ -1,0 +1,38 @@
+<html>
+<head>
+  <title>This is my test page</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+<body id="thisbody">
+  <div id="container">
+    <!-- <div id="widget1" style="border:solid; align-items:center; width:25%; height:25%">
+      <div class="row justify-content-center h1" style="padding: 70px 0;">
+        15
+      </div>
+    </div> -->
+    <div id="textconsole" contenteditable="true" style="height:50%;"><html><head><title>blah</title></head><body>Test
+      <img src="https://i.imgur.com/RbDOC6D.jpg"></body></html>
+    </div>
+    <div id="widget1" style="border:solid;">
+      <div id="htmlconsole"><div>
+    </div>
+  </div>
+
+  <script>
+
+  setInterval(updateHTMLConsole, 500);
+
+  function updateHTMLConsole(){
+    var textconsole = document.getElementById("textconsole");
+    var htmlconsole = document.getElementById("htmlconsole");
+
+    htmlconsole.innerText = textconsole.outerHTML;
+
+  }
+
+  updateHTMLConsole();
+
+  </script>
+</body>
+</html>

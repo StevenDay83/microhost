@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>mhst admin login</title>
+    <link rel="icon" href="/img/HeavyScout.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script src="/scripts/settings.js"></script>
+    <script src="/scripts/widgets.js"></script>
+    <script src="/scripts/admin.js"></script>
+  </head>
+  <body>
+    <main role="main" class="container">
+      <div id="adminBanner" class="alert alert-light row justify-content-center">
+        Admin Login
+      </div>
+
+      <div id="adminLoginFormArea" class="new-site">
+        <div class="container row justify-content-center my-2 mx-auto">
+          <p>username:</p>
+          <input type="text" id="adminUserName" class="mx-2" required autofocus>
+        </div>
+        <div class="container row justify-content-center my-2 mx-auto">
+          <p>password:</p>
+          <input type="password" id="adminPassword" class="mx-2">
+        </div>
+        <div class="container row justify-content-center my-4 mx-4">
+          <button class="btn btn-md btn-primary my-2" id="loginButton" onClick="loginAction()" type="button">login</button>
+        </div>
+      </div>
+
+      <script>
+      var userTextBox = document.getElementById("adminUserName");
+      var pwdTextBox = document.getElementById("adminPassword");
+
+      userTextBox.addEventListener("keyup", checkForEnter);
+      pwdTextBox.addEventListener("keyup", checkForEnter);
+
+      function loginAction(){
+        if (userTextBox.value == '') {
+          adminBanner.setActionAlert("Please enter username", "error");
+        } else if (pwdTextBox.value == '') {
+          adminBanner.setActionAlert("Please enter password", "error");
+        } else {
+          authenticateUser(userTextBox.value, pwdTextBox.value, function(sessionID, err){
+            if (!err){
+              console.log(sessionID.sessionid);
+              generateCookie(sessionID.sessionid);
+              window.location.href = "/admin/dashboard.html";
+            } else {
+              adminBanner.setActionAlert(err.message, "error");
+            }
+          });
+        }
+      }
+
+      function checkForEnter(event){
+        if (event.keyCode == 13){
+          document.getElementById("loginButton").click();
+          loginAction();
+        }
+      }
+
+      function generateCookie(sessionID) {
+        if (sessionID != undefined){
+          document.cookie = 'sessionid=' + sessionID;
+        }
+      }
+
+      var adminBanner = new statusBanner("adminBanner", 'Admin Login');
+      </script>
+  </body>
+</html>

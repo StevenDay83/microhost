@@ -1,0 +1,209 @@
+<html>
+<head>
+  <title>EVM Beta Portal</title>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <script src = "/scripts/settings.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="/">EVM Calculator</a>
+      <a class="navbar-brand" href="/api.html">API Reference</a>
+    </nav>
+  </header>
+  <main role="main" class="container">
+    <h1 class="mt-5">API Reference</h1>
+    <!-- <div style="margin-top:30px"><button class="btn btn-lg btn-primary btn-block">Edit Prototypes</button></div>
+    <div style="margin-top:30px"><button class="btn btn-lg btn-primary btn-block">Edit Templates</button></div>
+    <div style="margin-top:30px"><button class="btn btn-lg btn-primary btn-block" onClick="gotoGenerate()">Generate Template</button></div> -->
+    <h2 class="mt-5">EVM API</h2>
+    <p>The EVM calculator has API calls useful for pulling in direct data without using the website. The following will show you how to utilize the API</p>
+    <p>The API calls and responses will be in <b>application/json</b> format.</p>
+    <p>The suffix for the API currentiy is <b>/api/v1/</b></p>
+    <h2 class="mt-5">Authentication</h2>
+    <p>In order to access any features on the API, you will need to authenticate with a username and password.</p>
+    <h3>POST /api/v1/auth</h3>
+    <h4>Body</h4>
+    <pre><code>
+      {
+      "username":"testuser",
+      "password":"12345"
+      }
+  </code></pre>
+  <h4>Output</h4>
+  <h5 class="mt-2">Success</h5>
+  <pre><code>
+    {
+    "login": "success",
+    "token": "b5c8bfe7c1447f19dc272e6061521b92"
+    }
+  </code></pre>
+  <h5 class="mt-2">Failure</h5>
+  <pre><code>
+    {
+    "login": "failure"
+    }
+  </code></pre>
+  <p>Successful logins will yieid a md5 token. This token will be needed in the header key as <b>token</b>. Login tokens have approximately an hour lifetime before they expire.</p>
+  <h3>GET /api/v1/checkauth</h3>
+  <p>This call is used to verify that the login token is still valid.</p>
+  <h4>Header</h4>
+  <code>token=[md5 hash token]</code>
+  <h4>Output</h4>
+  <h5 class="mt-2">Success</h5>
+  <pre><code>
+    {
+    "auth_valid": "success"
+    }
+  </code></pre>
+  <h5 class="mt-2">Failure</h5>
+  <pre><code>
+    {
+        "auth_valid": "failure"
+    }
+  </code></pre>
+    <h3>GET /api/v1/listprojects</h3>
+    <p>This call lists out all open projects with high level attributes</p>
+    <h4>Header</h4>
+    <code>token=[md5 hash token]</code>
+    <h4>Output</h4>
+    <h5 class="mt-2">Success</h5>
+    <pre><code>
+      [
+          {
+              "id": 490,
+              "company": "Bank Leumi USA",
+              "summary": "350 Madison Post Active Site Survey and Aerohive Implementation",
+              "project_manager": "Emma Sally",
+              "status": "On-Hold",
+              "price": 16000
+          }
+      ]
+    </code></pre>
+    <h5 class="mt-2">Failure (not logged in)</h5>
+    <pre><code>
+      {
+          "auth_valid": "failure"
+      }
+    </code></pre>
+    <h3>GET /api/v1/getevm</h3>
+    <p>This call processes the EVM numbers for a given project attribute.</p>
+    <h4>Header</h4>
+    <code>token=[md5 hash token]</code>
+    <h4>Get Attribute</h4>
+    <code>id=[Project Number]</code>
+    <h4>Output</h4>
+    <h5 class="mt-2">Success</h5>
+    <pre><code>
+      {
+          "project_name": "Meraki Wireless and Radius Implementation",
+          "project_id": 575,
+          "client_company": "Empire State Development Corporation",
+          "project_manager": "Derek Diaz",
+          "project_est_start": "2017-06-09T00:00:00Z",
+          "project_est_end": "2017-07-09T00:00:00Z",
+          "project_total_price": 4595,
+          "evm": {
+              "starting_effective_rate": 160.94570928196146,
+              "starting_actual_cost": 2312.55,
+              "target_profit_margin": 0.49672470076169745,
+              "ending_effective_rate": 307.97587131367294,
+              "ending_actual_cost": 987.18,
+              "ending_profit_margin": 0.7851621327529924,
+              "cost_variance": 3607.82,
+              "planned_value": 2401.309982486865,
+              "schedule_variance": 2193.690017513135,
+              "cost_performance_index": 4.654672906663425,
+              "schedule_performance_index": 1.9135388739946382
+          },
+          "tickets": {
+              "173743": {
+                  "cost": 133.25,
+                  "budget": 113,
+                  "summary": "Scheduling - Meraki Wireless and Radius Implementation",
+                  "wbs_code": "2.1.1"
+              },
+              "173744": {
+                  "cost": 96,
+                  "budget": 217.5,
+                  "summary": "Kick-Off Call and/or Discovery Visit",
+                  "wbs_code": "2.1.2"
+              },
+              "173748": {
+                  "cost": 622.0799999999999,
+                  "budget": 128,
+                  "summary": "Configure Equipment",
+                  "wbs_code": "3.1.1"
+              },
+              "173749": {
+                  "cost": 0,
+                  "budget": 0,
+                  "summary": "Ship Equipment",
+                  "wbs_code": "3.1.2"
+              },
+              "173750": {
+                  "cost": 0,
+                  "budget": 0,
+                  "summary": "Radius/Meraki Integration ",
+                  "wbs_code": "3.2.1"
+              },
+              "173751": {
+                  "cost": 40.5,
+                  "budget": 0,
+                  "summary": "Triple Constraints",
+                  "wbs_code": "4.1"
+              },
+              "173752": {
+                  "cost": 0,
+                  "budget": 0,
+                  "summary": "Client Handoff Document",
+                  "wbs_code": "5.1"
+              },
+              "173753": {
+                  "cost": 0,
+                  "budget": 0,
+                  "summary": "Project Closure Acceptance",
+                  "wbs_code": "5.2"
+              },
+              "173754": {
+                  "cost": 0,
+                  "budget": 0,
+                  "summary": "Invoice Email to AE and SSC",
+                  "wbs_code": "5.3"
+              },
+              "175499": {
+                  "cost": 6.48,
+                  "budget": 0,
+                  "summary": "EDS - Coordinating Cabling Services - PTS",
+                  "wbs_code": "2.1.3"
+              },
+              "175500": {
+                  "cost": 0,
+                  "budget": 32,
+                  "summary": "PCR - Configure AP for NY Offic ",
+                  "wbs_code": "6.1"
+              },
+              "175895": {
+                  "cost": 88.87,
+                  "budget": 128,
+                  "summary": "Switch Configuration for Buffalo Site ",
+                  "wbs_code": "6.2"
+              }
+          }
+      }
+    </code></pre>
+    <h5 class="mt-2">Failure (not logged in)</h5>
+    <pre><code>
+      {
+          "auth_valid": "failure"
+      }
+    </code></pre>
+  </main>
+  <!-- <script>
+  var td = document.getElementById("project_data");
+  td.innerHTML = "<tr><td>Hi</td></tr>";
+  </script> -->
+</body>
+</html>
